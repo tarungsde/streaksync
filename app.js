@@ -1,3 +1,5 @@
+// importing dependencies
+
 import express from "express";
 import bodyParser from "body-parser"
 import dotenv from "dotenv";
@@ -8,6 +10,8 @@ import passport from "passport";
 import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import { v4 as uuidv4 } from "uuid";
+
+//configurations
 
 dotenv.config();
 const app = express();
@@ -38,6 +42,8 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// get routes
 
 app.get("/", (req,res) => {
   res.render("home.ejs");
@@ -74,6 +80,8 @@ app.get("/logout", (req,res) => {
   })
 })
 
+// post routes
+
 app.post("/register", async (req,res) => {
 
   const {name, mail, password} = req.body;
@@ -104,6 +112,8 @@ app.post("/login", passport.authenticate("local", {
   successRedirect: "/app",
   failureRedirect: "/login?error=Invalid credentials.",
 }));
+
+//strategies
 
 passport.use("local",
   new Strategy({ usernameField: "mail" }, async function verify(mail, password, cb) {
