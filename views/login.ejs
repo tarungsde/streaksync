@@ -3,32 +3,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Streak Sync</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <form method="post" action="/login">
-    <h1>
-      Hello Streak Freak!
-    </h1>
-    <h2>
-      Login Here.
-      <% if (error) { %>
-        <p class="error-msg" style="color: red;"> <%= error %> </p>
-      <% } %>      
-    </h2>
-    <label for="mail"></label>
-    <input type="email" id="mail" name="mail" placeholder="E-Mail" required>
-    <label for="password"></label>
-    <input type="password" id="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-    <p> Dont have an account? <a href="register"> Register Here</a> </p>
-  </form>
 
-  <a href="/auth/google" role="button">Login with Google</a>
+  <div class="primary-container">
+    <form method="post" action="/login">
+      <h1>
+        Hello Streak Freak!
+      </h1>
+      <h2>
+        Login Here.
+        <% if (error) { %>
+          <p class="error-msg" style="color: red;"> <%= error %> </p>
+        <% } %>      
+      </h2>
+      <input type="email" id="mail" name="mail" placeholder="E-Mail" required>
+      <input type="password" id="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+      <a href="/auth/google" role="button"> <img src="/images/google-logo.png" alt="Google Logo" > Login with Google</a>
+      <p> Doesn't have an account? <a href="register"> Register Here</a> </p>
+    </form>
+    
+  </div>  
 
   <script>
     setTimeout(()=>{
       const ermsg = document.querySelector(".error-msg");
-      if(ermsg) ermsg.remove();
+      if (ermsg) {
+        ermsg.style.transition = "opacity 0.5s ease-out";
+        ermsg.style.opacity = "0";
+        setTimeout(() => ermsg.remove(), 500);
+      }
     }, 2000);
   </script>
 </body>

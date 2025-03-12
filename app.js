@@ -11,7 +11,7 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import { v4 as uuidv4 } from "uuid";
 
-//configurations
+// configurations
 
 dotenv.config();
 const app = express();
