@@ -113,7 +113,7 @@ app.post("/login", passport.authenticate("local", {
   failureRedirect: "/login?error=Invalid credentials.",
 }));
 
-//strategies
+// strategies
 
 passport.use("local",
   new Strategy({ usernameField: "mail" }, async function verify(mail, password, cb) {
