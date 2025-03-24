@@ -1,17 +1,46 @@
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Streak Sync</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <h1> 
-    welcome
-  </h1>
+<%- include('header.ejs') %>
+<h1>Date: <%= date %></h1>
+<a href="/logout" role="button">
+  Log Out
+</a>
+<br>
+<h1>task to be done</h1>
+<form action="/task" method="post">
+    <label for="name" >Tasks: </label>
+    <input type="text" placeholder="  ⌨ Type Your Tasks" name="t_name">
+    <input type="submit" value="ADD Tasks">
+</form>
+<form action="/delete-today" method="post">
+    <input type="submit" value="DELETE ALL">
+</form>
+
+<ul>
+    <% for(var i=0;i<task.length;i++){%>
+    <li><%= task[i].task %></li>
+    <form action="/delete-task" method="post">
+        
+        <input type="text" name="task_id" value="<%=task[i].task_id%>" hidden> 
+        <input type="submit" value="DELETE">
+    </form>
+    <form action="/complete-task" method="post">
+        <input type="text" name="task_id" value="<%=task[i].task_id%>" hidden> 
+        <input type="text" name="task" value="<%=task[i].task%>" hidden>
+        <input type="submit" value="COMPLETE">
+    </form>
+    <% } %>
+</ul>  
+
+<h1>task completed</h1>
+<form action="/delete-complete" method="post">
+  <input type="submit" value="RESET">
+</form>
+<ul>
+    <% for(var i=0;i<complete.length;i++){%>
+    <li><%= complete[i].task %></li>
+    <% } %>
+</ul>
   
-  <a href="/logout" role="button">
-    Log Out
-  </a>
-</body>
-</html>
+<h1>Completed Percentage %</h1>
+<h2><%=percent%></h2>
+<%- include('footer.ejs') %>
+  

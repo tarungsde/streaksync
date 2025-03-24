@@ -17,6 +17,7 @@ dotenv.config();
 const app = express();
 const saltRounds = 3;
 const port = process.env.PORT;
+const d = new Date();
 
 const db = new pg.Client({
   user: process.env.DB_USER,
@@ -43,6 +44,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+let task = [];
+let complete = [];
+let percent;
+let date = d.getDate() +" "+ (d.getMonth()+1) +" " + d.getFullYear();
+
 // get routes
 
 app.get("/", (req,res) => {
@@ -57,9 +63,25 @@ app.get("/login", (req,res) => {
   res.render("login.ejs", { error: req.query.error || "" });
 });
 
-app.get("/app", (req,res) => {
-  if(req.isAuthenticated())
-    res.render("app.ejs");
+app.get("/app", async (req,res) => {
+  if(req.isAuthenticated()) {
+    let a,b;
+    try {
+        const data = await db.query("select * from task where date=($1) and month=($2) and year=($3);",
+          [d.getDate(),d.getMonth()+1,d.getFullYear()]);
+        const data2 = await db.query("select * from complete_task where date=($1) and month=($2) and year=($3);",
+          [d.getDate(),d.getMonth()+1,d.getFullYear()]);
+        a=data.rowCount;
+        b=data2.rowCount;
+        complete=data2.rows;
+        task=data.rows; 
+    }
+    catch(err) {
+      console.error("error is executing"+err.stack);
+    }
+    percent = (a + b) === 0 ? 0 : (b / (a + b)) * 100;
+    res.render("app.ejs", {task:task,date:date,complete:complete,percent:percent} );
+  }
   else 
     res.redirect("/login?error=Kindly login.");
 });
@@ -112,6 +134,66 @@ app.post("/login", passport.authenticate("local", {
   successRedirect: "/app",
   failureRedirect: "/login?error=Invalid credentials.",
 }));
+
+app.post("/task",(req,res)=>{
+  console.log("task: "+req.body.t_name);
+  const task_id=uuidv4();
+  db.query('INSERT INTO task (user_id, task, task_id, date, month, year) VALUES ($1, $2, $3, $4, $5, $6)',
+      [req.user.id, req.body.t_name, task_id, d.getDate(), d.getMonth()+1, d.getFullYear()]
+    );
+  res.redirect("/app");  
+});
+
+app.post("/delete-task",async (req,res)=>{
+  console.log("del id: "+req.body.task_id);
+  try {    
+      const data=await db.query("delete from task where task_id=($1)",[req.body.task_id]);
+  }
+  catch(err) {
+      console.error(err);
+  }
+  res.redirect("/app");
+});
+
+app.post("/complete-task",async (req,res)=>{
+  console.log(req.body);
+  try {
+      db.query("delete from task where task_id=($1)",[req.body.task_id]);
+      const data = await db.query("select * from task where date=($1) and month=($2) and year=($3);",
+        [d.getDate(),d.getMonth()+1,d.getFullYear()]); 
+      db.query('INSERT INTO complete_task (user_id, task, task_id, date, month, year) VALUES ($1, $2, $3, $4, $5, $6)',
+      [req.user.id ,req.body.task, req.body.task_id, d.getDate(), d.getMonth()+1, d.getFullYear()]
+    );
+  }
+  catch(err) {
+      console.error(err);
+  }
+  res.redirect("/app");
+});
+
+
+app.post("/delete-complete",(req,res)=>{
+  try{
+      db.query("delete from complete_task where date=($1) and month=($2) and year=($3)",
+        [d.getDate(), d.getMonth()+1, d.getFullYear()]);
+  }
+  catch(err) {
+      console.error(err);
+  }
+  res.redirect("/app");
+})
+
+app.post("/delete-today",(req,res)=>{
+  try {
+      db.query("delete from task where date=($1) and month=($2) and year=($3)",
+        [d.getDate(), d.getMonth()+1, d.getFullYear()]
+      );
+  }
+  catch(err) {
+      console.error(err);
+  }
+  res.redirect("/app");
+})
 
 // strategies
 
