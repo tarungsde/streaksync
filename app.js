@@ -100,7 +100,28 @@ app.get("/logout", (req,res) => {
     if(err) console.log(err);
     res.redirect("/");
   })
-})
+});
+
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/login?error=Please log in to view your history.");
+}
+
+app.get("/app/history", ensureAuthenticated, async (req,res) => {
+  try {
+    const result = await db.query(
+      "select count(*) from complete_task where user_id=($1) group by month;",
+      [req.user.id]
+    );
+    console.log(result.rows);
+    res.render("history.ejs", {history_count: result.rows});
+  } catch(err) {
+    console.error("Error fetching history:", err);
+    res.status(500).send("Internal Server Error");
+  } 
+});
 
 // post routes
 
