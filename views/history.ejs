@@ -1,63 +1,30 @@
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Completion Tracker</title>
-  <style>
+<h1>Task History (Past 6 Months)</h1>
 
-    body {
-      background-color: whitesmoke;
-    }
+<% for (let month in history) { %>
+  <div class="month-section">
+    <h2><%= month %></h2>
+    <% if (history[month].length === 0) { %>
+      <p>No completed tasks</p>
+    <% } else { %>
+      <div class="dates">
+        <% history[month].forEach(day => { %>
+          <span class="tile"><%= day %></span>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+<% } %>
 
-    .wrapper {
-      display: grid;
-      grid-template-columns: repeat(5, 50px);
-      grid-template-rows: repeat(7, 50px);
-      gap: 5px;
-    }
-
-    .wrapper div {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-  </style>
-</head>
-<body>
-
-  <div class="wrapper"></div>
-
-  <script>
-    let completion = [6,2,0,6,1,3,0,9,3,3,1,7,2,4,9,1,2,9,8,4,4,5,8,5,1,3,4,10,7,8];
-
-    let cols = 5; 
-    let rows = 7; 
-
-    const wrapper = document.querySelector(".wrapper");
-
-    function colorFunc(value) {
-      if (completion[value] == 0) return "white";
-      if (completion[value] == 1 || completion[value] == 2) return "lightgreen";
-      if (completion[value] >= 3 && completion[value] <= 5) return "mediumseagreen";
-      return "darkgreen";
-    }
-
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        let index = row + col * rows; 
-        let div = document.createElement("div");
-
-        if (index < completion.length) {
-          div.style.background = colorFunc(index);
-          div.textContent = completion[index];
-        }
-
-        wrapper.appendChild(div);
-      }
-    }
-  </script>
-  
-</body>
-</html>
+<style>
+  .tile {
+    display: inline-block;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+  }
+  .month-section {
+    margin-bottom: 30px;
+  }
+</style>

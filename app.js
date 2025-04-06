@@ -31,6 +31,8 @@ db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.set('view engine', 'ejs');
+
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -109,18 +111,48 @@ function ensureAuthenticated(req, res, next) {
   res.redirect("/login?error=Please log in to view your history.");
 }
 
-app.get("/app/history", ensureAuthenticated, async (req,res) => {
+app.get('/app/history', ensureAuthenticated, async (req, res) => {
   try {
-    const result = await db.query(
-      "select count(*) from complete_task where user_id=($1) group by month;",
-      [req.user.id]
+    const userId = req.user.id;
+
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth() - 5, 1); // Start from the 1st of 6 months ago
+
+    const { rows } = await db.query(
+      `SELECT date, month, year
+       FROM complete_task
+       WHERE user_id = $1
+         AND (year > $2 OR (year = $2 AND month >= $3))`,
+      [userId, start.getFullYear(), start.getMonth() + 1]
     );
-    console.log(result.rows);
-    res.render("history.ejs", {history_count: result.rows});
-  } catch(err) {
-    console.error("Error fetching history:", err);
-    res.status(500).send("Internal Server Error");
-  } 
+
+    // Create a structure like: { 'April 2025': [1, 2, 4, 15], ... }
+    const history = {};
+
+    for (let i = 0; i < 6; i++) {
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const key = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+      history[key] = new Set(); // avoid duplicates
+    }
+
+    rows.forEach(({ date, month, year }) => {
+      const key = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+      if (history[key]) {
+        history[key].add(date);
+      }
+    });
+
+    // Convert Sets to Arrays for EJS rendering
+    for (let key in history) {
+      history[key] = Array.from(history[key]).sort((a, b) => a - b);
+    }
+
+    res.render('history.ejs', { history });
+
+  } catch (err) {
+    console.error('Error in /app/history:', err);
+    res.status(500).send('Something went wrong');
+  }
 });
 
 // post routes
