@@ -1,18 +1,37 @@
-<h1>Task History (Past 6 Months)</h1>
+<% if(partHistory) { %>
 
-<% for (let month in history) { %>
-  <div class="month-section">
-    <h2><%= month %></h2>
-    <% if (history[month].length === 0) { %>
-      <p>No completed tasks</p>
-    <% } else { %>
-      <div class="dates">
-        <% history[month].forEach(day => { %>
-          <span class="tile"><%= day %></span>
-        <% }) %>
-      </div>
-    <% } %>
-  </div>
+    <h2>Completed Tasks on <%= date %>/<%= month %>/<%= year %></h2>
+    <ul>
+      <% partHistory.forEach(task => { %>
+        <li><%= task.task %></li>
+      <% }); %>
+    </ul>
+    <a href="/app/history">← Back to Calendar View</a>
+
+<% } else { %>
+
+  <h1>Task History (Past 6 Months)</h1>
+  <% for (let month in history) { %>
+    <div class="month-section">
+      <h2><%= month %></h2>
+      <% if (history[month].length === 0) { %>
+        <p>No completed tasks</p>
+      <% } else { %>
+        <div class="dates">
+          <% history[month].forEach(day => { %>
+            <span class="tile"
+              data-year="<%= month.split(' ')[1] %>"
+              data-month="<%= new Date(`${month}`).getMonth() + 1 %>"
+              data-date="<%= day %>">
+              <%= day %>
+            </span>
+      
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
 <% } %>
 
 <style>
@@ -28,3 +47,18 @@
     margin-bottom: 30px;
   }
 </style>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        const year = tile.dataset.year;
+        const month = tile.dataset.month;
+        const date = tile.dataset.date;
+        window.location.href = `/app/history?year=${year}&month=${month}&date=${date}`;
+      });
+    });
+  });
+
+</script>

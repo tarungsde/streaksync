@@ -112,17 +112,45 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get('/app/history', ensureAuthenticated, async (req, res) => {
+  const userId = req.user.id;
   try {
-    const userId = req.user.id;
+    if (
+      req.query.year && req.query.month && req.query.date &&
+      !isNaN(req.query.year) &&
+      !isNaN(req.query.month) &&
+      !isNaN(req.query.date)
+    )
+     {
+      try {
+        const partRes = await db.query(
+          `SELECT task FROM complete_task 
+           WHERE year = $1 AND month = $2 AND date = $3 AND user_id = $4`,
+          [req.query.year, req.query.month, req.query.date, userId]
+        );
+        
+        console.log(partRes);
+        return res.render("history.ejs", {
+          partHistory: partRes.rows,
+          history: null,
+          date: req.query.date,
+          month: req.query.month,
+          year: req.query.year
+        });
+        
+      } catch(err) {
+        console.log(err);
+        return res.sendStatus(404);
+      }
+    }
 
     const today = new Date();
     const start = new Date(today.getFullYear(), today.getMonth() - 5, 1); // Start from the 1st of 6 months ago
 
     const { rows } = await db.query(
-      `SELECT date, month, year
-       FROM complete_task
-       WHERE user_id = $1
-         AND (year > $2 OR (year = $2 AND month >= $3))`,
+        `SELECT date, month, year
+        FROM complete_task
+        WHERE user_id = $1
+        AND (year > $2 OR (year = $2 AND month >= $3))`,
       [userId, start.getFullYear(), start.getMonth() + 1]
     );
 
@@ -147,7 +175,7 @@ app.get('/app/history', ensureAuthenticated, async (req, res) => {
       history[key] = Array.from(history[key]).sort((a, b) => a - b);
     }
 
-    res.render('history.ejs', { history });
+    res.render('history.ejs', { history, partHistory: null, query: null });
 
   } catch (err) {
     console.error('Error in /app/history:', err);
