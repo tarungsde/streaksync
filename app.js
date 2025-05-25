@@ -114,72 +114,37 @@ function ensureAuthenticated(req, res, next) {
 app.get('/app/history', ensureAuthenticated, async (req, res) => {
   const userId = req.user.id;
   try {
-    if (
-      req.query.year && req.query.month && req.query.date &&
-      !isNaN(req.query.year) &&
-      !isNaN(req.query.month) &&
-      !isNaN(req.query.date)
-    )
-     {
-      try {
-        const partRes = await db.query(
-          `SELECT task FROM complete_task 
-           WHERE year = $1 AND month = $2 AND date = $3 AND user_id = $4`,
-          [req.query.year, req.query.month, req.query.date, userId]
-        );
-        
-        console.log(partRes);
-        return res.render("history.ejs", {
-          partHistory: partRes.rows,
-          history: null,
-          date: req.query.date,
-          month: req.query.month,
-          year: req.query.year
-        });
-        
-      } catch(err) {
-        console.log(err);
-        return res.sendStatus(404);
-      }
-    }
-
-    const today = new Date();
-    const start = new Date(today.getFullYear(), today.getMonth() - 5, 1); // Start from the 1st of 6 months ago
-
     const { rows } = await db.query(
-        `SELECT date, month, year
-        FROM complete_task
-        WHERE user_id = $1
-        AND (year > $2 OR (year = $2 AND month >= $3))`,
-      [userId, start.getFullYear(), start.getMonth() + 1]
-    );
+      `select date, month, year
+        from complete_task
+        where user_id = $1`, [userId]
+    )
+    console.log(rows);
 
-    // Create a structure like: { 'April 2025': [1, 2, 4, 15], ... }
-    const history = {};
+      const monthDays = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-    for (let i = 0; i < 6; i++) {
-      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      const key = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-      history[key] = new Set(); // avoid duplicates
-    }
+      let history = [];
 
-    rows.forEach(({ date, month, year }) => {
-      const key = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
-      if (history[key]) {
-        history[key].add(date);
+      for(let i=2; i<=7; i++) {
+        history.push({
+          month: i,
+          days: Array.from({ length : monthDays[i-1] }, () => 0)
+        })
       }
-    });
 
-    // Convert Sets to Arrays for EJS rendering
-    for (let key in history) {
-      history[key] = Array.from(history[key]).sort((a, b) => a - b);
-    }
+      rows.forEach(completedTask => {
+        let currDate = completedTask.date - 1;
+        let currMonth = completedTask.month - 2;
 
-    res.render('history.ejs', { history, partHistory: null, query: null });
+        history[currMonth].days[currDate]++;
+      });
 
-  } catch (err) {
-    console.error('Error in /app/history:', err);
-    res.status(500).send('Something went wrong');
+      //res.json(history);
+      res.render("history.ejs", {history : history})
+    
+  } catch (error) {
+    console.log(error);    
+    res.status(500).send('Internal Server Error');
   }
 });
 

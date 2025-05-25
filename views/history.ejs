@@ -1,64 +1,88 @@
-<% if(partHistory) { %>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streak Sync</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4.3.5/cal-heatmap.css" />
+  <script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.3.5/cal-heatmap.min.js"></script>
 
-    <h2>Completed Tasks on <%= date %>/<%= month %>/<%= year %></h2>
-    <ul>
-      <% partHistory.forEach(task => { %>
-        <li><%= task.task %></li>
-      <% }); %>
-    </ul>
-    <a href="/app/history">← Back to Calendar View</a>
+</head>
+<body>
+  <%- include("header.ejs") %>
 
-<% } else { %>
+  <h1>Your Streak History</h1>
 
-  <h1>Task History (Past 6 Months)</h1>
-  <% for (let month in history) { %>
-    <div class="month-section">
-      <h2><%= month %></h2>
-      <% if (history[month].length === 0) { %>
-        <p>No completed tasks</p>
-      <% } else { %>
-        <div class="dates">
-          <% history[month].forEach(day => { %>
-            <span class="tile"
-              data-year="<%= month.split(' ')[1] %>"
-              data-month="<%= new Date(`${month}`).getMonth() + 1 %>"
-              data-date="<%= day %>">
-              <%= day %>
-            </span>
-      
+  <div class="calendar">
+    <% history.forEach(monthObj => { %>
+      <div class="month">
+        <h3><%= new Date(0, monthObj.month - 1).toLocaleString('default', { month: 'long' }) %></h3>
+        <div class="days-grid">
+          <% monthObj.days.forEach((count, index) => { 
+              let shade = "zero";
+              if (count === 1) shade = "low";
+              else if (count === 2) shade = "medium";
+              else if (count >= 3) shade = "high";
+          %>
+            <div class="day-box <%= shade %>" title="Day <%= index+1 %>: <%= count %> task(s)"></div>
           <% }) %>
         </div>
-      <% } %>
-    </div>
-  <% } %>
+      </div>
+    <% }) %>
+  </div>
 
-<% } %>
+  <%- include("footer.ejs") %>
 
-<style>
-  .tile {
-    display: inline-block;
-    background-color: #4caf50;
-    color: white;
-    padding: 10px;
-    margin: 5px;
-    border-radius: 8px;
-  }
-  .month-section {
-    margin-bottom: 30px;
-  }
-</style>
+  <a href="/app/history">← Back to Calendar View</a>
+  <style>
+    .calendar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
 
-<script>
+    .month {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+    }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.tile').forEach(tile => {
-      tile.addEventListener('click', () => {
-        const year = tile.dataset.year;
-        const month = tile.dataset.month;
-        const date = tile.dataset.date;
-        window.location.href = `/app/history?year=${year}&month=${month}&date=${date}`;
-      });
-    });
-  });
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 20px);
+      gap: 4px;
+      margin-top: 1rem;
+    }
 
-</script>
+    .day-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    .day-box.zero {
+      background-color: #ebedf0;
+    }
+
+    .day-box.low {
+      background-color: #c6e48b;
+    }
+
+    .day-box.medium {
+      background-color: #7bc96f;
+    }
+
+    .day-box.high {
+      background-color: #196127;
+    }
+
+  </style>
+
+  <script>
+
+  </script>
+  
+</body>
+</html>
