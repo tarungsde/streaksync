@@ -49,7 +49,7 @@ app.use(passport.session());
 let task = [];
 let complete = [];
 let percent;
-let date = d.getDate() +" "+ (d.getMonth()+1) +" " + d.getFullYear();
+let date = d.getDate() +"/"+ (d.getMonth()+1) +"/" + d.getFullYear();
 
 // get routes
 
