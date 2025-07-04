@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Streak Sync</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - Streak Sync</title>
   <style>
     :root {
       --bg-color: #f7f7f7;
@@ -171,111 +171,84 @@
       border-radius: 20px;
       margin-bottom: 5px;
     }
-
-
   </style>
-  </head>
-  <body data-theme="light">
+</head>
+<body>
+  <div class="container">
 
     <div class="topnav"> 
       <img src="/images/logo.png" alt="Logo" style="height: 40px; border-radius: 20px; float: left; padding: 5px 10px;">
-      <a class="active" href="#home">Home</a>
+      <a href="/app">Home</a>
       <a href="/contact">Contact</a>
-      <a href="/about">About</a>
+      <a class="active" href="/about">About</a>
       <a href="/logout">Log Out</a>
     </div>
 
-    <img src="/images/torch.png" id="dark-toggle"> 
+    <div class="about-section" style="max-width: 900px; margin: 100px auto 40px; padding: 40px 30px; background-color: var(--container-bg); border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <div style="text-align: center;">
+      <img src="/images/logo.png" alt="Streak Sync Logo" style="height: 80px; border-radius: 40px; margin-bottom: 20px;">
+      <h1 style="margin-bottom: 10px;">Welcome to <span style="color: var(--button-bg);">Streak Sync</span></h1>
+      <p style="font-size: 18px; max-width: 700px; margin: 0 auto;">
+        Your personal productivity companion for building consistent habits and getting things done—one streak at a time!
+      </p>
+    </div>
 
-    <div class="app-container">
+    <hr style="margin: 30px 0; border: 1px solid var(--input-border);">
 
-      <!-- Left Side -->
-      <div class="left-container">
-        <div class="ldiv1">
-          <h2>All My Tasks</h2>
-        </div>
-
-        <div class="ldiv2">
-          <h3>TODAY - <%= date %></h3>
-          <ul id="task-list">
-            <% for (let i = 0; i < task.length; i++) { %>
-              <li class="task-item">
-                <span class="task-text"><%= task[i].task %></span>
-
-                <form action="/delete-task" method="post">
-                  <input type="hidden" name="task_id" value="<%= task[i].task_id %>">
-                  <input type="submit" value="🗑️">
-                </form>
-
-                <form action="/complete-task" method="post">
-                  <input type="hidden" name="task_id" value="<%= task[i].task_id %>">
-                  <input type="hidden" name="task" value="<%= task[i].task %>">
-                  <input type="submit" value="✅">
-                </form>
-              </li>
-            <% } %>
-          </ul>
-        </div>
-
-        <div class="ldiv3">
-          <form action="/task" method="post">
-            <input type="text" placeholder=" + Add task" id="t_name" name="t_name" required>
-            <input type="submit" value="Add Task">
-          </form>
-
-        <form action="/delete-today" method="post" style="margin-top:10px;">
-          <input type="submit" value="Delete All">
-        </form>
+    <div style="display: flex; flex-direction: column; gap: 25px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="font-size: 24px;">✅</span>
+        <p style="margin: 0; font-size: 17px;">Quickly add and manage daily tasks.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="font-size: 24px;">🗑️</span>
+        <p style="margin: 0; font-size: 17px;">Delete individual tasks or clear your list in a click.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="font-size: 24px;">📈</span>
+        <p style="margin: 0; font-size: 17px;">Monitor your daily progress with completion percentages.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="font-size: 24px;">📅</span>
+        <p style="margin: 0; font-size: 17px;">Explore your completed tasks using a GitHub-style heatmap.</p>
       </div>
     </div>
 
-    <!-- Right Side -->
-    <div class="right-container">
-      <h2>Task Completed</h2>
+    <hr style="margin: 30px 0; border: 1px solid var(--input-border);">
 
-      <form action="/delete-complete" method="post">
-        <input type="submit" value="Reset Completed">
-      </form>
-
-      <ul>
-        <% for (let i = 0; i < complete.length; i++) { %>
-          <li><%= complete[i].task %></li>
-        <% } %>
-      </ul>
-
-      <h3>Completed Percentage</h3>
-      <h2><%= percent %>%</h2>
-
-      <a role="button" href="/app/history">📆 View Your History</a>
+    <div style="text-align: center;">
+      <p style="font-size: 16px; max-width: 700px; margin: 0 auto;">
+        Whether you're a student, a professional, or just someone looking to build better habits, <strong>Streak Sync</strong> helps you stay focused, motivated, and in control of your daily wins.
+      </p>
     </div>
   </div>
-  <footer class="footer">
-    <div class="footer-content">
-      <img src="/images/logo.png" alt="Streak Sync Logo">
-      <p>© 2025 Streak Sync. All rights reserved.</p>
-    </div>
-  </footer>
 
+     <img src="/images/torch.png" id="dark-toggle"> 
+    <footer class="footer">
+      <div class="footer-content">
+        <img src="/images/logo.png" alt="Streak Sync Logo">
+        <p>© 2025 Streak Sync. All rights reserved.</p>
+      </div>
+    </footer>
+    <script>
+      const toggle = document.getElementById("dark-toggle");
+      const body = document.body;
 
-<script>
-  const toggle = document.getElementById("dark-toggle");
-  const body = document.body;
+      function applyTheme(theme) {
+        body.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+      }
 
-  function applyTheme(theme) {
-    body.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }
+      toggle.addEventListener("click", () => {
+        const current = body.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        applyTheme(next);
+      });
 
-  toggle.addEventListener("click", () => {
-    const current = body.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
-    applyTheme(next);
-  });
-
-  // Load saved theme
-  const savedTheme = localStorage.getItem("theme") || "light";
-  applyTheme(savedTheme);
-</script>
-
+      // Load saved theme
+      const savedTheme = localStorage.getItem("theme") || "light";
+      applyTheme(savedTheme);
+    </script>
+  </div>
 </body>
 </html>
